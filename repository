@@ -1,0 +1,160 @@
+import random
+class InternalRepository:
+    def __init__(self):
+        self.tools = {}
+    def add_a_tool(self, tl_nm, description):
+        existing_tool_names = [tool['name'].lower() for tool in self.tools.values()]
+        if tl_nm.lower() in existing_tool_names:
+            print(f"Tool '{tl_nm}' already exists in the repository.\n")
+        else:
+            tl_id = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))
+            self.tools[tl_id] = {'name': tl_nm, 'description': description, 'ratings': [], 'reviews': []}
+            print(f"Tool '{tl_nm}' (ID: {tl_id}) added to the repository.\n")
+
+    def search_a_tool(self, description):
+        found = False
+        for tid, tool in self.tools.items():
+            if description.lower() in tool['description'].lower():
+                found = True
+                print(f"Tool Name: {tool['name']}\n")
+        if not found:
+            print("Tool not found.\n")
+    def rate_a_tool(self, tl_id, rte, review=None):
+        if tl_id in self.tools:
+            if rte>=1 and  rte<= 5:
+                tool = self.tools[tl_id]
+                tool['ratings'].append(rte)
+                if review:
+                    tool['reviews'].append(review)
+                print(f"User {len(tool['ratings'])} rated {tool['name']} (ID: {tl_id}) {rte}.")
+                if review:
+                    print(f"Review by User {len(tool['reviews'])}: {review}")
+
+                avg_rating = sum(tool['ratings']) / len(tool['ratings'])
+                print(f"Average Rating: {avg_rating:.2f}\n")
+            else:
+                print("Rating should be between 1 and 5.\n")
+        else:
+            print("Tool not found.")
+    def update_tool(self, tl_id, new_name=None, new_description=None, choice3=None, rate_review_choice=None):
+        if tl_id in self.tools:
+            tool = self.tools[tl_id]
+
+            if new_name:
+                tool['name'] = new_name
+                print(f"Tool name updated for ID: {tl_id}\n")
+            if new_description:
+                tool['description'] = new_description
+                print(f"Tool description updated for ID: {tl_id}\n")
+            if choice3 == 3:
+                user_rating_index = int(input(f"Enter the user's rating index to update (1 - {len(tool['ratings'])}): "))
+                if 1 <= user_rating_index <= len(tool['ratings']):
+                    if rate_review_choice == 1:
+                        new_rating = int(input(f"Enter the new rating for {tool['name']} (ID: {tl_id}): "))
+                        if 1 <= new_rating <= 5:
+                            tool['ratings'][user_rating_index - 1] = new_rating
+                            print(f"Rating for {tool['name']} (ID: {tl_id}), User {user_rating_index} updated to {new_rating}\n")
+                        else:
+                            print("Rating should be between 1 and 5.\n")
+                    elif rate_review_choice == 2:
+                        new_review = input(f"Enter the new review for {tool['name']} (ID: {tl_id}): ")
+                        tool['reviews'][user_rating_index - 1] = new_review
+                        print(f"Review for {tool['name']} (ID: {tl_id}), User {user_rating_index} updated successfully\n")
+                    else:
+                        print("Invalid choice for updating rate/review.\n")
+                else:
+                    print("Invalid user rating index.\n")
+            else:
+                print(f"Tool ID {tl_id} updated successfully.\n")
+        else:
+            print("Tool not found.\n")
+    def delete_tool(self, tl_id):
+        if tl_id in self.tools:
+            del self.tools[tl_id]
+            print(f"Tool ID {tl_id} deleted successfully.\n")
+        else:
+            print("Tool not found.\n")
+
+
+    def display_tool_info(self, tl_id):
+        if tl_id in self.tools:
+            tool = self.tools[tl_id]
+            print("------------------------------------\n")
+            print(f"Tool ID: {tl_id}\n")
+            print(f"Name: {tool['name']}\n")
+            print(f"Description: {tool['description']}\n")
+            
+            if tool['ratings']:
+                for i, rating in enumerate(tool['ratings']):
+                    print(f"User {i + 1} Rating: {rating}")
+                    if i < len(tool['reviews']):
+                         print(f"User {i + 1} Review: {tool['reviews'][i]}\n")
+                avg_rating = sum(tool['ratings']) / len(tool['ratings'])
+                print(f"Average Rating: {avg_rating:.2f}\n")
+            else:
+                print("No ratings yet.\n")
+            print("---------------------------------------\n")
+
+        else:
+            print("Tool not found.\n")
+
+
+repo = InternalRepository()
+
+while True:
+    print("1. Add a tool")
+    print("2. Search for a tool")
+    print("3. Rate a tool")
+    print("4. Display tool information")
+    print("5. Update tool")
+    print("6. Delete tool")
+    print("7. Exit")
+    ch = int(input("Enter your choice: "))
+
+    if ch == 1:
+        tl_nm = input("Enter name of the tool:")
+        description = input(f"Enter a description of {tl_nm}:")
+        repo.add_a_tool(tl_nm, description)
+
+
+    elif ch == 2:
+        description = input("Enter the description of a tool:")
+        repo.search_a_tool(description)
+    
+    elif ch == 3:
+        tl_id = input("Enter ID of the tool to rate:")
+        rte = int(input("Enter rating of the tool:"))
+        review = input("Enter review of the tool:")
+        repo.rate_a_tool(tl_id, rte, review)
+
+    elif ch == 4:
+        tl_id = input("Enter ID of the tool to display information:")
+        repo.display_tool_info(tl_id)
+    elif ch == 5:
+        tl_id = input("Enter ID of the tool to update:")
+        print("What do you want to change?")
+        print("1. Tool Name")
+        print("2. Tool Description")
+        print("3. Tool Rating/Review")
+        choice = int(input("Enter your choice: "))
+        
+        if choice == 1:
+            new_name = input("Enter the new name of the tool:")
+            repo.update_tool(tl_id, new_name=new_name)
+        elif choice == 2:
+            new_description = input("Enter the new description of the tool: ")
+            repo.update_tool(tl_id, new_description=new_description)
+        elif choice == 3:
+            print("What do you want to update for the user?")
+            print("1. Rating")
+            print("2. Review")
+            rate_review_choice = int(input("Enter your choice: "))
+            repo.update_tool(tl_id, choice3=3, rate_review_choice=rate_review_choice)
+    elif ch == 6:
+        tl_id = input("Enter ID of the tool to delete: ")
+        repo.delete_tool(tl_id)
+    
+    elif ch == 7:
+        break
+    else:
+        print("Invalid choice")
